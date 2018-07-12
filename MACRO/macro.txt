@@ -1,0 +1,84 @@
+Sub ExtractData() 
+Dim SAPDump As Worksheet
+Dim Extract As Worksheet
+Dim MTTC As Worksheet
+Set SAPDump = ThisWorkbook.Sheets("List of Table")
+Set Extract = ThisWorkbook.Sheets("Metadata")
+Set MTTC = ThisWorkbook.Sheets("Metadata Test cases")
+MTTC.Cells.ClearContents
+Dim a As String
+Dim TotalRowCount As Long
+TotalRowCount = Extract.UsedRange.Rows.Count
+Dim TotalRowCount1 As Long
+TotalRowCount1 = SAPDump.UsedRange.Rows.Count
+Dim h As Integer
+Dim i As Integer
+Dim j As Integer
+Dim k As Integer
+Dim l As Integer
+Dim m As Integer
+Dim z As Integer
+l = 0
+m = 0
+MTTC.Cells(1, 1) = "S.NO"
+MTTC.Cells(1, 2) = "Testcase Name"
+MTTC.Cells(1, 3) = "Testcase Description"
+MTTC.Cells(1, 4) = "Step No"
+MTTC.Cells(1, 5) = "Test Step Description"
+MTTC.Cells(1, 6) = "Expected Result"
+For h = 2 To TotalRowCount1
+SAPDump.Cells(h, 2) = Application.WorksheetFunction.CountIf(Extract.Range("A:A"), SAPDump.Cells(h, 1))
+Next h
+For z = 2 To TotalRowCount
+If Right(Extract.Cells(z, 5), 1) = "," Then
+Extract.Cells(z, 6) = Left(Extract.Cells(z, 5), Len(Extract.Cells(z, 5)) - 1)
+Else:
+Extract.Cells(z, 6) = Extract.Cells(z, 5)
+End If
+Next z
+k = 2
+For j = 2 To TotalRowCount1
+    MTTC.Cells(k, 1) = j - 1
+    MTTC.Cells(k, 2) = SAPDump.Cells(j, 1) & " Table Metadata Validation "
+    MTTC.Cells(k, 3) = "MetaData Validation between Source and Target for the table " & SAPDump.Cells(j, 1)
+    m = m + SAPDump.Cells(j - 1, 2)
+    l = l + SAPDump.Cells(j, 2)
+    Dim n As Integer
+    n = 0
+    For i = 2 + m To l + 1
+    n = n + 1
+    MTTC.Cells(i, 4) = "Step " & n
+    MTTC.Cells(i, 5) = "Validate the column " & Extract.Cells(i, 3) & " Metadata between source and target "
+    MTTC.Cells(i, 6) = "Column " & Extract.Cells(i, 3) & " having datatype " & Extract.Cells(i, 4) & " (" & Extract.Cells(i, 6) & ") " & " should be converted to Hive Native Format of " & Extract.Cells(i, 4) & " Dataype "
+    Next i
+    k = k + SAPDump.Cells(j, 2)
+Next j
+MTTC.Cells.EntireColumn.AutoFit
+    MTTC.Cells.Select
+    With Selection
+        .HorizontalAlignment = xlGeneral
+        .VerticalAlignment = xlBottom
+        .WrapText = True
+        .Orientation = 0
+        .AddIndent = False
+        .IndentLevel = 0
+        .ShrinkToFit = False
+        .ReadingOrder = xlContext
+        .MergeCells = False
+        .ColumnWidth = 45
+            End With
+       MTTC.Columns("A:C").EntireColumn.AutoFit    
+    MTTC.Range("A1:F1").Select
+    With Selection.Interior
+        .PatternColorIndex = xlAutomatic
+        .Color = 65535
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With    
+    MTTC.UsedRange.Select
+    With Selection.Borders
+                .LineStyle = xlContinuous
+                .Weight = xlThin
+                .ColorIndex = xlAutomatic
+        End With        
+End Sub
